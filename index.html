@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM-Powered Project Deployment Advisor</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .chatbot {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 350px;
+            max-width: 90%;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 1000;
+        }
+
+        .chatbot-header {
+            background: #4b6cb7;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chatbot-header button {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .chatbot-messages {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            background: #f9f9f9;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .chatbot-input {
+            display: flex;
+            border-top: 1px solid #ddd;
+        }
+
+        .chatbot-input input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 0;
+            outline: none;
+        }
+
+        .chatbot-input button {
+            padding: 10px;
+            background: #4b6cb7;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .chatbot-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #4b6cb7;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .user-message, .bot-message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 10px;
+            max-width: 80%;
+        }
+
+        .user-message {
+            background: #4b6cb7;
+            color: white;
+            align-self: flex-end;
+        }
+
+        .bot-message {
+            background: #e0e0e0;
+            color: #333;
+            align-self: flex-start;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <header class="bg-gradient-to-r from-blue-500 to-indigo-700 text-white py-8">
+        <div class="container mx-auto text-center">
+            <h1 class="text-5xl font-bold">LLM-Powered Project Deployment Advisor</h1>
+            <p class="mt-4 text-xl">Streamline your project decisions with AI-powered recommendations</p>
+        </div>
+    </header>
+
+   
+    <main class="container mx-auto mt-12 p-8 bg-white shadow-lg rounded-lg">
+   
+        <form method="POST" action="/" class="space-y-8">
+            <div>
+                <label for="project_name" class="block text-xl font-medium text-gray-700">Project Name:</label>
+                <input type="text" id="project_name" name="project_name" placeholder="Enter your project's name" required class="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+            </div>
+
+            <div>
+                <label for="project_idea" class="block text-xl font-medium text-gray-700">Project Idea:</label>
+                <textarea id="project_idea" name="project_idea" rows="4" placeholder="Describe your project idea..." required class="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+            </div>
+
+            <div>
+                <label for="target_size" class="block text-xl font-medium text-gray-700">Target Size:</label>
+                <input type="text" id="target_size" name="target_size" placeholder="Small, Medium, or Large scale?" required class="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+            </div>
+
+            <div>
+                <label for="target_market" class="block text-xl font-medium text-gray-700">Target Market:</label>
+                <input type="text" id="target_market" name="target_market" placeholder="Who is your audience or target region?" required class="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+            </div>
+
+            <div>
+                <label for="project_working" class="block text-xl font-medium text-gray-700">Working Details:</label>
+                <textarea id="project_working" name="project_working" rows="4" placeholder="Provide more technical or functional details..." required class="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="w-full py-4 px-6 bg-indigo-600 text-white font-semibold rounded-md shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Get Recommendations</button>
+            </div>
+        </form>
+
+        {% if result %}
+        <div class="output mt-12 p-8 bg-gray-100 border border-gray-300 rounded-md">
+            <h2 class="text-3xl font-semibold mb-6">AI Recommendations</h2>
+            <p class="font-medium mb-4">Here are the suggestions based on your inputs:</p>
+            <pre class="whitespace-pre-wrap">{{ result }}</pre>
+        </div>
+        {% endif %}
+    </main>
+
+    <footer class="bg-indigo-700 text-white py-4 text-center">
+        <p>&copy; 2024 LLM-Powered Project Deployment Advisor</p>
+    </footer>
+
+    <!-- Chatbot -->
+    <div class="chatbot" id="chatbot">
+        <div class="chatbot-header">
+            <span>Chat with AI</span>
+            <button onclick="toggleChat()">X</button>
+        </div>
+        <div class="chatbot-messages" id="chatbot-messages"></div>
+        <div class="chatbot-input">
+            <input type="text" id="chat-input" placeholder="Type your message..." onkeydown="if(event.key === 'Enter') sendMessage()" />
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <button class="chatbot-toggle" onclick="toggleChat()">
+        <i class="fas fa-comments"></i>
+    </button>
+
+    <script>
+  
+        function toggleChat() {
+            const chatbot = document.getElementById("chatbot");
+            chatbot.style.display = chatbot.style.display === "flex" ? "none" : "flex";
+        }
+
+    
+        function sendMessage() {
+            const input = document.getElementById("chat-input");
+            const userMessage = input.value.trim();
+
+            if (!userMessage) return;
+
+
+            const messagesContainer = document.getElementById("chatbot-messages");
+            const userMessageElement = document.createElement("div");
+            userMessageElement.classList.add("user-message");
+            userMessageElement.innerText = userMessage;
+            messagesContainer.appendChild(userMessageElement);
+
+            input.value = "";
+
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            fetch("/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: userMessage })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const botMessage = data.response;
+                const botMessageElement = document.createElement("div");
+                botMessageElement.classList.add("bot-message");
+                botMessageElement.innerText = botMessage;
+                messagesContainer.appendChild(botMessageElement);
+             
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            })
+            .catch(error => {
+                const botMessageElement = document.createElement("div");
+                botMessageElement.classList.add("bot-message");
+                botMessageElement.innerText = "Sorry, something went wrong!";
+                messagesContainer.appendChild(botMessageElement);
+                
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            });
+        }
+    </script>
+</body>
+</html>
